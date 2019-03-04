@@ -24,75 +24,19 @@ const {
   Image
 } = require('actions-on-google');
 
+const helpers = require('./helpers');
+const config = require('./config');
+
 // Import the firebase-functions package for deployment.
 const functions = require('firebase-functions');
 
 // Instantiate the Dialogflow client.
 const app = dialogflow({debug: true});
 
-// Define a mapping of fake color strings to basic card objects.
-const colorMap = {
-  'indigo taco': {
-    title: 'Indigo Taco',
-    text: 'Indigo Taco is a subtle bluish tone.',
-    image: {
-      url: 'https://storage.googleapis.com/material-design/publish/material_v_12/assets/0BxFyKV4eeNjDN1JRbF9ZMHZsa1k/style-color-uiapplication-palette1.png',
-      accessibilityText: 'Indigo Taco Color',
-    },
-    display: 'WHITE',
-  },
-  'pink unicorn': {
-    title: 'Pink Unicorn',
-    text: 'Pink Unicorn is an imaginative reddish hue.',
-    image: {
-      url: 'https://storage.googleapis.com/material-design/publish/material_v_12/assets/0BxFyKV4eeNjDbFVfTXpoaEE5Vzg/style-color-uiapplication-palette2.png',
-      accessibilityText: 'Pink Unicorn Color',
-    },
-    display: 'WHITE',
-  },
-  'blue grey coffee': {
-    title: 'Blue Grey Coffee',
-    text: 'Calling out to rainy days, Blue Grey Coffee brings to mind your favorite coffee shop.',
-    image: {
-      url: 'https://storage.googleapis.com/material-design/publish/material_v_12/assets/0BxFyKV4eeNjDZUdpeURtaTUwLUk/style-color-colorsystem-gray-secondary-161116.png',
-      accessibilityText: 'Blue Grey Coffee Color',
-    },
-    display: 'WHITE',
-  },
-};
 
-// In the case the user is interacting with the Action on a screened device
-// The Fake Color Carousel will display a carousel of color cards
-const fakeColorCarousel = () => {
-  const carousel = new Carousel({
-   items: {
-     'indigo taco': {
-       title: 'Indigo Taco',
-       synonyms: ['indigo', 'taco'],
-       image: new Image({
-         url: 'https://storage.googleapis.com/material-design/publish/material_v_12/assets/0BxFyKV4eeNjDN1JRbF9ZMHZsa1k/style-color-uiapplication-palette1.png',
-         alt: 'Indigo Taco Color',
-       }),
-     },
-     'pink unicorn': {
-       title: 'Pink Unicorn',
-       synonyms: ['pink', 'unicorn'],
-       image: new Image({
-         url: 'https://storage.googleapis.com/material-design/publish/material_v_12/assets/0BxFyKV4eeNjDbFVfTXpoaEE5Vzg/style-color-uiapplication-palette2.png',
-         alt: 'Pink Unicorn Color',
-       }),
-     },
-     'blue grey coffee': {
-       title: 'Blue Grey Coffee',
-       synonyms: ['blue', 'grey', 'coffee'],
-       image: new Image({
-         url: 'https://storage.googleapis.com/material-design/publish/material_v_12/assets/0BxFyKV4eeNjDZUdpeURtaTUwLUk/style-color-colorsystem-gray-secondary-161116.png',
-         alt: 'Blue Grey Coffee Color',
-       }),
-     },
- }});
- return carousel;
-};
+let totalScore = 0;
+let counter = 0;
+let shuffleQuestions;
 
 // Handle the Dialogflow intent named 'Default Welcome Intent'.
 app.intent('Default Welcome Intent', (conv) => {
@@ -100,7 +44,7 @@ app.intent('Default Welcome Intent', (conv) => {
  if (!name) {
    // Asks the user's permission to know their name, for personalization.
    conv.ask(new Permission({
-     context: 'This quiz will contain 5 questions. Best of Luck. To get to know you better',
+     context: 'This quiz will contain 5 questions. To get to know you better',
      permissions: 'NAME',
    }));
  } else {
@@ -111,68 +55,107 @@ app.intent('Default Welcome Intent', (conv) => {
 // Handle the Dialogflow intent named 'actions_intent_PERMISSION'. If user
 // agreed to PERMISSION prompt, then boolean value 'permissionGranted' is true.
 app.intent('actions_intent_PERMISSION', (conv, params, permissionGranted) => {
+  shuffleQuestions = helpers.shuffle(config.questions);
   if (!permissionGranted) {
     // If the user denied our request, go ahead with the conversation.
-    conv.ask(`OK, no worries. Here's your first quiz question. Which gas is being filled in baloon?`);
-    conv.ask(new Suggestions('Helium', 'Hydrogen'));
+    conv.ask(`OK, no worries. Here's your first quiz question. ${shuffleQuestions[counter]}`);
   } else {
     // If the user accepted our request, store their name in
     // the 'conv.data' object for the duration of the conversation.
     conv.data.userName = conv.user.name.display;
-    conv.ask(`Thanks, ${conv.data.userName}. Here's your first quiz question. Which gas is being filled in baloon?`);
-    conv.ask(new Suggestions('Helium', 'Hydrogen'));
+    conv.ask(`Thanks, ${conv.data.userName}. Here's your first quiz question. ${shuffleQuestions[counter]}`);
   }
+  counter++;
 });
 
-app.intent('answer_1_callback', (conv, {answer}) => {
-	if (answer === 'Hydrogen') {
-		conv.ask('Correct!');
-	} else {
-		conv.ask('Wrong Answer!');
-	}
-})
-
-// Handle the Dialogflow intent named 'favorite color'.
-// The intent collects a parameter named 'color'.
-app.intent('favorite color', (conv, {color}) => {
-  const luckyNumber = color.length;
-  const audioSound = 'https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg';
+app.intent('answer_intent', (conv, {answer}) => {
   const name = conv.user.storage.userName;
-  if (name) {
-    // If we collected user name previously, address them by name and use SSML
-    // to embed an audio snippet in the response.
-    conv.ask(`<speak>${name}, your lucky number is ` +
-      `${luckyNumber}.<audio src="${audioSound}"></audio> ` +
-      `Would you like to hear some fake colors?</speak>`);
-    conv.ask(new Suggestions('Yes', 'No'));
-  } else {
-    conv.ask(`<speak>Your lucky number is ${luckyNumber}.` +
-      `<audio src="${audioSound}"></audio> ` +
-      `Would you like to hear some fake colors?</speak>`);
-    conv.ask(new Suggestions('Yes', 'No'));
-  }
+  const audioSound = 'https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg';
+	if (helpers.sanitize(answer) === 'hydrogen'
+  || helpers.sanitize(answer) === '206'
+  || helpers.sanitize(answer) === 'high'
+  || helpers.sanitize(answer) === 'saline'
+  || helpers.sanitize(answer) === 'chlorophyll'
+  ) {
+		totalScore = totalScore+20;
+    if (counter === shuffleQuestions.length) { // Last question
+      conv.close(`<speak>Congratulations! ${name}, Your total score is ${totalScore} <audio src="${audioSound}"></audio></speak>`);
+    } else {
+      conv.ask(`Correct! Your total score is ${totalScore}`);
+  		conv.ask(`Next question. ${shuffleQuestions[counter]}`);
+    }
+    counter++;
+	} else {
+		conv.close(`Wrong Answer! Your total score is ${totalScore}`);
+    totalScore = 0;
+    counter = 0;
+	}
 });
 
-// Handle the Dialogflow intent named 'favorite fake color'.
-// The intent collects a parameter named 'fakeColor'.
-app.intent('favorite fake color', (conv, {fakeColor}) => {
-  fakeColor = conv.arguments.get('OPTION') || fakeColor;
-  // Present user with the corresponding basic card and end the conversation.
-  if (!conv.screen) {
-    conv.ask(colorMap[fakeColor].text);
-  } else {
-    conv.ask(`Here you go.`, new BasicCard(colorMap[fakeColor]));
-  }
-  conv.ask('Do you want to hear about another fake color?');
-  conv.ask(new Suggestions('Yes', 'No'));
-});
-
-// Handle the Dialogflow intent named 'favorite color - yes'
-app.intent(['favorite color - yes', 'favorite fake color - yes'], (conv) => {
- conv.ask('Which color, indigo taco, pink unicorn or blue grey coffee?');
- // If the user is using a screened device, display the carousel
- if (conv.screen) return conv.ask(fakeColorCarousel());
-});
+// app.intent('answer_1_intent', (conv, {answer}) => {
+// 	if (helpers.sanitize(answer) === 'hydrogen') {
+// 		totalScore = totalScore+20;
+// 		conv.ask(`Correct! Your total score is ${totalScore}`);
+// 		conv.ask(`Next question. ${shuffleQuestions[1]}`);
+// 	} else {
+// 		conv.close(`Wrong Answer! Your total score is ${totalScore}`);
+//     totalScore = 0;
+// 	}
+// });
+//
+// app.intent('answer_2_intent', (conv, {answer}) => {
+// 	if (helpers.sanitize(answer) == 206) {
+// 		totalScore = totalScore+20;
+// 		conv.ask(`Correct! Your total score is ${totalScore}`);
+// 		conv.ask(`Next question. Evaporation process is fast in which temperature?`);
+// 		conv.ask(new Suggestions('High', 'Low'));
+// 	} else {
+// 		conv.close(`Wrong Answer! Your total score is ${totalScore}`);
+//     totalScore = 0;
+// 	}
+// });
+//
+// app.intent('answer_3_intent', (conv, {answer}) => {
+// 	if (helpers.sanitize(answer) == 'high') {
+// 		totalScore = totalScore+20;
+// 		conv.ask(`Correct! Your total score is ${totalScore}`);
+// 		conv.ask(`Next question. Sea and ocean water cannot be used for drinking because it is?`);
+// 		conv.ask(new Suggestions('Saline', 'Sweet'));
+// 	} else {
+// 		conv.close(`Wrong Answer! Your total score is ${totalScore}`);
+// 		totalScore = 0;
+// 	}
+// });
+//
+// app.intent('answer_4_intent', (conv, {answer}) => {
+// 	if (helpers.sanitize(answer) == 'saline') {
+// 		totalScore = totalScore+20;
+// 		conv.ask(`Correct! Your total score is ${totalScore}`);
+// 		conv.ask(`Next question. What is green pigment present in plants called?`);
+// 	} else {
+// 		conv.close(`Wrong Answer! Your total score is ${totalScore}`);
+// 		totalScore = 0;
+// 	}
+// });
+//
+// app.intent('answer_5_intent', (conv, {answer}) => {
+// 	const audioSound = 'https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg';
+// 	const name = conv.user.storage.userName;
+// 	if (helpers.sanitize(answer) == 'chlorophyll') {
+// 		totalScore = totalScore+20;
+// 		conv.ask(`Congratulations! Your total score is ${totalScore}`);
+// 		if (name) {
+// 		// If we collected user name previously, address them by name and use SSML
+// 		// to embed an audio snippet in the response.
+// 		conv.close(`<speak>Congratulations! ${name}, Your total score is ${totalScore} <audio src="${audioSound}"></audio>`);
+// 		} else {
+// 		conv.close(`<speak>Congratulations! Your total score is ${totalScore} <audio src="${audioSound}"></audio>`);
+// 		}
+// 	} else {
+// 		totalScore = 0;
+// 		conv.close(`Wrong Answer! Your total score is ${totalScore}`);
+// 	}
+// });
 
 app.intent('actions_intent_NO_INPUT', (conv) => {
   // Use the number of reprompts to vary response
