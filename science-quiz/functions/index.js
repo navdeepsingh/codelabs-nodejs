@@ -41,6 +41,13 @@ let shuffleQuestions;
 // Handle the Dialogflow intent named 'Default Welcome Intent'.
 app.intent('Default Welcome Intent', (conv) => {
  const name = conv.user.storage.userName;
+shuffleQuestions = [
+  'Which gas is being filled in baloon?',
+  'How many bones in human body?',
+  'Evaporation process is fast in which temperature?',
+  'Sea and ocean water cannot be used for drinking because it is?',
+  'What is green pigment present in plants called?'
+];
  if (!name) {
    // Asks the user's permission to know their name, for personalization.
    conv.ask(new Permission({
@@ -55,7 +62,7 @@ app.intent('Default Welcome Intent', (conv) => {
 // Handle the Dialogflow intent named 'actions_intent_PERMISSION'. If user
 // agreed to PERMISSION prompt, then boolean value 'permissionGranted' is true.
 app.intent('actions_intent_PERMISSION', (conv, params, permissionGranted) => {
-  shuffleQuestions = helpers.shuffle(config.questions);
+
   if (!permissionGranted) {
     // If the user denied our request, go ahead with the conversation.
     conv.ask(`OK, no worries. Here's your first quiz question. ${shuffleQuestions[counter]}`);
@@ -79,9 +86,13 @@ app.intent('answer_intent', (conv, {answer}) => {
   ) {
 		totalScore = totalScore+20;
     if (counter === shuffleQuestions.length) { // Last question
-      conv.close(`<speak>Congratulations! ${name}, Your total score is ${totalScore} <audio src="${audioSound}"></audio></speak>`);
+      if (name) {
+        conv.close(`<speak>Congratulations! ${name}, Your total score is ${totalScore} <audio src="${audioSound}"></audio></speak>`);
+      } else {
+        conv.close(`<speak>Congratulations!, Your total score is ${totalScore} <audio src="${audioSound}"></audio></speak>`);
+      }
     } else {
-      conv.ask(`Correct! Your total score is ${totalScore}`);
+      conv.ask(`Correct! Your total score is ${totalScore}. `);
   		conv.ask(`Next question. ${shuffleQuestions[counter]}`);
     }
     counter++;
