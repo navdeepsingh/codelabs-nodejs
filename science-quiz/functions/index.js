@@ -62,7 +62,13 @@ shuffleQuestions = [
 // Handle the Dialogflow intent named 'actions_intent_PERMISSION'. If user
 // agreed to PERMISSION prompt, then boolean value 'permissionGranted' is true.
 app.intent('actions_intent_PERMISSION', (conv, params, permissionGranted) => {
-
+  shuffleQuestions = [
+    'Which gas is being filled in baloon?',
+    'How many bones in human body?',
+    'Evaporation process is fast in which temperature?',
+    'Sea and ocean water cannot be used for drinking because it is?',
+    'What is green pigment present in plants called?'
+  ];
   if (!permissionGranted) {
     // If the user denied our request, go ahead with the conversation.
     conv.ask(`OK, no worries. Here's your first quiz question. ${shuffleQuestions[counter]}`);
@@ -76,11 +82,19 @@ app.intent('actions_intent_PERMISSION', (conv, params, permissionGranted) => {
 });
 
 app.intent('answer_intent', (conv, {answer}) => {
+  shuffleQuestions = [
+    'Which gas is being filled in baloon?',
+    'How many bones in human body?',
+    'Evaporation process is fast in which temperature?',
+    'Sea and ocean water cannot be used for drinking because it is?',
+    'What is green pigment present in plants called?'
+  ];
   const name = conv.user.storage.userName;
   const audioSound = 'https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg';
 	if (helpers.sanitize(answer) === 'hydrogen'
   || helpers.sanitize(answer) === '206'
   || helpers.sanitize(answer) === 'high'
+  || helpers.sanitize(answer) === 'hi'
   || helpers.sanitize(answer) === 'saline'
   || helpers.sanitize(answer) === 'chlorophyll'
   ) {
