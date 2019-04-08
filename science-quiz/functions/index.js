@@ -34,20 +34,18 @@ const functions = require('firebase-functions');
 const app = dialogflow({debug: true});
 
 
-let totalScore = 0;
-let counter = 0;
+let totalScore;
+let counter;
 let shuffleQuestions;
 
 // Handle the Dialogflow intent named 'Default Welcome Intent'.
 app.intent('Default Welcome Intent', (conv) => {
  const name = conv.user.storage.userName;
-shuffleQuestions = [
-  'Which gas is being filled in baloon?',
-  'How many bones in human body?',
-  'Evaporation process is fast in which temperature?',
-  'Sea and ocean water cannot be used for drinking because it is?',
-  'What is green pigment present in plants called?'
-];
+ //const introSound = 'https://actions.google.com/sounds/v1/transportation/helicopter_by.ogg';
+ counter = 0;
+ totalScore = 0;
+ shuffleQuestions = helpers.shuffle(config.questions);
+ //conv.ask(`<speak><audio src="${introSound}"></audio></speak>`);
  if (!name) {
    // Asks the user's permission to know their name, for personalization.
    conv.ask(new Permission({
@@ -62,13 +60,6 @@ shuffleQuestions = [
 // Handle the Dialogflow intent named 'actions_intent_PERMISSION'. If user
 // agreed to PERMISSION prompt, then boolean value 'permissionGranted' is true.
 app.intent('actions_intent_PERMISSION', (conv, params, permissionGranted) => {
-  shuffleQuestions = [
-    'Which gas is being filled in baloon?',
-    'How many bones in human body?',
-    'Evaporation process is fast in which temperature?',
-    'Sea and ocean water cannot be used for drinking because it is?',
-    'What is green pigment present in plants called?'
-  ];
   if (!permissionGranted) {
     // If the user denied our request, go ahead with the conversation.
     conv.ask(`OK, no worries. Here's your first quiz question. ${shuffleQuestions[counter]}`);
@@ -82,15 +73,10 @@ app.intent('actions_intent_PERMISSION', (conv, params, permissionGranted) => {
 });
 
 app.intent('answer_intent', (conv, {answer}) => {
-  shuffleQuestions = [
-    'Which gas is being filled in baloon?',
-    'How many bones in human body?',
-    'Evaporation process is fast in which temperature?',
-    'Sea and ocean water cannot be used for drinking because it is?',
-    'What is green pigment present in plants called?'
-  ];
   const name = conv.user.storage.userName;
-  const audioSound = 'https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg';
+  const audioWinSound = 'https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg';
+  const audioLoseSound = 'https://actions.google.com/sounds/v1/cartoon/cartoon_boing.ogg';
+  const audioSuccessSound = 'https://actions.google.com/sounds/v1/cartoon/pop.ogg';
 	if (helpers.sanitize(answer) === 'hydrogen'
   || helpers.sanitize(answer) === '206'
   || helpers.sanitize(answer) === 'high'
@@ -101,94 +87,29 @@ app.intent('answer_intent', (conv, {answer}) => {
 		totalScore = totalScore+20;
     if (counter === shuffleQuestions.length) { // Last question
       if (name) {
-        conv.close(`<speak>Congratulations! ${name}, Your total score is ${totalScore} <audio src="${audioSound}"></audio></speak>`);
+        conv.close(`<speak>Congratulations! ${name}, Your total score is ${totalScore} <audio src="${audioWinSound}"></audio></speak>`);
       } else {
-        conv.close(`<speak>Congratulations!, Your total score is ${totalScore} <audio src="${audioSound}"></audio></speak>`);
+        conv.close(`<speak>Congratulations!, Your total score is ${totalScore} <audio src="${audioWinSound}"></audio></speak>`);
       }
     } else {
-      conv.ask(`Correct! Your total score is ${totalScore}. `);
+      conv.ask(`<speak>Correct! Your total score is ${totalScore}. <audio src="${audioSuccessSound}"></audio></speak>`);
   		conv.ask(`Next question. ${shuffleQuestions[counter]}`);
     }
     counter++;
 	} else {
-		conv.close(`Wrong Answer! Your total score is ${totalScore}`);
+		conv.close(`<speak>Wrong Answer! Your total score is ${totalScore} <audio src="${audioLoseSound}"></audio></speak>`);
     totalScore = 0;
     counter = 0;
 	}
 });
 
-// app.intent('answer_1_intent', (conv, {answer}) => {
-// 	if (helpers.sanitize(answer) === 'hydrogen') {
-// 		totalScore = totalScore+20;
-// 		conv.ask(`Correct! Your total score is ${totalScore}`);
-// 		conv.ask(`Next question. ${shuffleQuestions[1]}`);
-// 	} else {
-// 		conv.close(`Wrong Answer! Your total score is ${totalScore}`);
-//     totalScore = 0;
-// 	}
-// });
-//
-// app.intent('answer_2_intent', (conv, {answer}) => {
-// 	if (helpers.sanitize(answer) == 206) {
-// 		totalScore = totalScore+20;
-// 		conv.ask(`Correct! Your total score is ${totalScore}`);
-// 		conv.ask(`Next question. Evaporation process is fast in which temperature?`);
-// 		conv.ask(new Suggestions('High', 'Low'));
-// 	} else {
-// 		conv.close(`Wrong Answer! Your total score is ${totalScore}`);
-//     totalScore = 0;
-// 	}
-// });
-//
-// app.intent('answer_3_intent', (conv, {answer}) => {
-// 	if (helpers.sanitize(answer) == 'high') {
-// 		totalScore = totalScore+20;
-// 		conv.ask(`Correct! Your total score is ${totalScore}`);
-// 		conv.ask(`Next question. Sea and ocean water cannot be used for drinking because it is?`);
-// 		conv.ask(new Suggestions('Saline', 'Sweet'));
-// 	} else {
-// 		conv.close(`Wrong Answer! Your total score is ${totalScore}`);
-// 		totalScore = 0;
-// 	}
-// });
-//
-// app.intent('answer_4_intent', (conv, {answer}) => {
-// 	if (helpers.sanitize(answer) == 'saline') {
-// 		totalScore = totalScore+20;
-// 		conv.ask(`Correct! Your total score is ${totalScore}`);
-// 		conv.ask(`Next question. What is green pigment present in plants called?`);
-// 	} else {
-// 		conv.close(`Wrong Answer! Your total score is ${totalScore}`);
-// 		totalScore = 0;
-// 	}
-// });
-//
-// app.intent('answer_5_intent', (conv, {answer}) => {
-// 	const audioSound = 'https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg';
-// 	const name = conv.user.storage.userName;
-// 	if (helpers.sanitize(answer) == 'chlorophyll') {
-// 		totalScore = totalScore+20;
-// 		conv.ask(`Congratulations! Your total score is ${totalScore}`);
-// 		if (name) {
-// 		// If we collected user name previously, address them by name and use SSML
-// 		// to embed an audio snippet in the response.
-// 		conv.close(`<speak>Congratulations! ${name}, Your total score is ${totalScore} <audio src="${audioSound}"></audio>`);
-// 		} else {
-// 		conv.close(`<speak>Congratulations! Your total score is ${totalScore} <audio src="${audioSound}"></audio>`);
-// 		}
-// 	} else {
-// 		totalScore = 0;
-// 		conv.close(`Wrong Answer! Your total score is ${totalScore}`);
-// 	}
-// });
-
 app.intent('actions_intent_NO_INPUT', (conv) => {
   // Use the number of reprompts to vary response
   const repromptCount = parseInt(conv.arguments.get('REPROMPT_COUNT'));
   if (repromptCount === 0) {
-    conv.ask('Which color would you like to hear about?');
+    conv.ask('Answer Please.');
   } else if (repromptCount === 1) {
-    conv.ask('Please say the name of a color.');
+    conv.ask('Please say the answer.');
   } else if (conv.arguments.get('IS_FINAL_REPROMPT')) {
     conv.close(`Sorry we're having trouble. Let's ` +
       `try this again later. Goodbye.`);
