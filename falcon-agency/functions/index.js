@@ -17,10 +17,7 @@
 // from the Actions on Google client library.
 const {
   dialogflow,
-  BasicCard,
-  Permission,
-  Suggestions,
-  Carousel,
+  BrowseCarousel,
   Image,
 } = require('actions-on-google');
 
@@ -30,67 +27,53 @@ const functions = require('firebase-functions');
 // Instantiate the Dialogflow client.
 const app = dialogflow({debug: true});
 
-// Define a mapping of fake color strings to basic card objects.
-const colorMap = {
-  'indigo taco': {
-    title: 'Indigo Taco',
-    text: 'Indigo Taco is a subtle bluish tone.',
-    image: {
-      url: 'https://storage.googleapis.com/material-design/publish/material_v_12/assets/0BxFyKV4eeNjDN1JRbF9ZMHZsa1k/style-color-uiapplication-palette1.png',
-      accessibilityText: 'Indigo Taco Color',
-    },
-    display: 'WHITE',
-  },
-  'pink unicorn': {
-    title: 'Pink Unicorn',
-    text: 'Pink Unicorn is an imaginative reddish hue.',
-    image: {
-      url: 'https://storage.googleapis.com/material-design/publish/material_v_12/assets/0BxFyKV4eeNjDbFVfTXpoaEE5Vzg/style-color-uiapplication-palette2.png',
-      accessibilityText: 'Pink Unicorn Color',
-    },
-    display: 'WHITE',
-  },
-  'blue grey coffee': {
-    title: 'Blue Grey Coffee',
-    text: 'Calling out to rainy days, Blue Grey Coffee brings to mind your favorite coffee shop.',
-    image: {
-      url: 'https://storage.googleapis.com/material-design/publish/material_v_12/assets/0BxFyKV4eeNjDZUdpeURtaTUwLUk/style-color-colorsystem-gray-secondary-161116.png',
-      accessibilityText: 'Blue Grey Coffee Color',
-    },
-    display: 'WHITE',
-  },
-};
-
 // In the case the user is interacting with the Action on a screened device
 // The Fake Color Carousel will display a carousel of color cards
-const fakeColorCarousel = () => {
-  const carousel = new Carousel({
-    items: {
-      'indigo taco': {
-        title: 'Indigo Taco',
-        synonyms: ['indigo', 'taco'],
+const managementCarousel = () => {
+  const carousel = new BrowseCarousel({
+    items: [
+      new BrowseCarouselItem({
+        title: 'DANIEL ENDRES',
+        url: 'http://www.falcon-agency.com/about#management',
+        description: 'Managing Partner',
         image: new Image({
-          url: 'https://storage.googleapis.com/material-design/publish/material_v_12/assets/0BxFyKV4eeNjDN1JRbF9ZMHZsa1k/style-color-uiapplication-palette1.png',
-          alt: 'Indigo Taco Color',
+          url: 'http://www.falcon-agency.com/user/themes/taita/img/team/daniel.jpg',
+          alt: 'DANIEL ENDRES',
         }),
-      },
-      'pink unicorn': {
-        title: 'Pink Unicorn',
-        synonyms: ['pink', 'unicorn'],
+        footer: 'Daniel is working closely with FALCON\'s clients, strategizing and finding solutions to complex challenges.',
+      }),
+      new BrowseCarouselItem({
+        title: 'MAX-F. SCHEICHENOST',
+        url: 'http://www.falcon-agency.com/about#management',
+        description: 'Managing Partner',
         image: new Image({
-          url: 'https://storage.googleapis.com/material-design/publish/material_v_12/assets/0BxFyKV4eeNjDbFVfTXpoaEE5Vzg/style-color-uiapplication-palette2.png',
-          alt: 'Pink Unicorn Color',
+          url: 'http://www.falcon-agency.com/user/themes/taita/img/team/max.jpg',
+          alt: 'MAX-F. SCHEICHENOST',
         }),
-      },
-      'blue grey coffee': {
-        title: 'Blue Grey Coffee',
-        synonyms: ['blue', 'grey', 'coffee'],
+        footer: 'Max\'s primary role at the company involves working with FALCON\'s clients to improve their bottom-line results & marketing effectiveness. ​',
+      }),
+      new BrowseCarouselItem({
+        title: 'KELVIN KOO',
+        url: 'http://www.falcon-agency.com/about#management',
+        description: 'Regional CEO (Asia)',
         image: new Image({
-          url: 'https://storage.googleapis.com/material-design/publish/material_v_12/assets/0BxFyKV4eeNjDZUdpeURtaTUwLUk/style-color-colorsystem-gray-secondary-161116.png',
-          alt: 'Blue Grey Coffee Color',
+          url: 'http://www.falcon-agency.com/user/themes/taita/img/team/kelvin.jpg',
+          alt: 'KELVIN KOO',
         }),
-      },
-  }});
+        footer: 'Kelvin is responsible for the growth and management of the Singapore office, building a centre of excellence to serve FALCON’s clients in the region.',
+      }),
+      new BrowseCarouselItem({
+        title: 'SOO SAN',
+        url: 'http://www.falcon-agency.com/about#management',
+        description: 'Finance Director',
+        image: new Image({
+          url: 'http://www.falcon-agency.com/user/themes/taita/img/team/soo%20san.jpg',
+          alt: 'SOO SAN',
+        }),
+        footer: 'Soo San is responsible for financial decision-making that affects the group’s business and providing strategic financial input to senior management.',
+      }),
+    ],
+  });
   return carousel;
 };
 
@@ -98,80 +81,7 @@ const fakeColorCarousel = () => {
 app.intent('Default Welcome Intent', (conv) => {
   conv.ask(`FALCON Agency is a full service digital agency serving clients in Southeast Asia. We are proud to work with industry leading brands and grow with them together.`);
   conv.ask(`Want to know about key persons in agency?`);
-  conv.ask(new Suggestions('Kelvin Koo', 'Max', 'Daniel', 'Soosan'));
-});
-
-// Handle the Dialogflow intent named 'actions_intent_PERMISSION'. If user
-// agreed to PERMISSION prompt, then boolean value 'permissionGranted' is true.
-app.intent('actions_intent_PERMISSION', (conv, params, permissionGranted) => {
-  if (!permissionGranted) {
-    // If the user denied our request, go ahead with the conversation.
-    conv.ask(`OK, no worries. What's your favorite color?`);
-    conv.ask(new Suggestions('Blue', 'Red', 'Green'));
-  } else {
-    // If the user accepted our request, store their name in
-    // the 'conv.user.storage' object for future conversations.
-    conv.user.storage.userName = conv.user.name.display;
-    conv.ask(`Thanks, ${conv.user.storage.userName}. ` +
-      `What's your favorite color?`);
-    conv.ask(new Suggestions('Blue', 'Red', 'Green'));
-  }
-});
-
-// Handle the Dialogflow intent named 'favorite color'.
-// The intent collects a parameter named 'color'.
-app.intent('favorite color', (conv, {color}) => {
-  const luckyNumber = color.length;
-  const audioSound = 'https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg';
-  if (conv.user.storage.userName) {
-    // If we collected user name previously, address them by name and use SSML
-    // to embed an audio snippet in the response.
-    conv.ask(`<speak>${conv.user.storage.userName}, your lucky number is ` +
-      `${luckyNumber}.<audio src="${audioSound}"></audio> ` +
-      `Would you like to hear some fake colors?</speak>`);
-    conv.ask(new Suggestions('Yes', 'No'));
-  } else {
-    conv.ask(`<speak>Your lucky number is ${luckyNumber}.` +
-      `<audio src="${audioSound}"></audio> ` +
-      `Would you like to hear some fake colors?</speak>`);
-    conv.ask(new Suggestions('Yes', 'No'));
-  }
-});
-
-// Handle the Dialogflow intent named 'favorite fake color'.
-// The intent collects a parameter named 'fakeColor'.
-app.intent('favorite fake color', (conv, {fakeColor}) => {
-  fakeColor = conv.arguments.get('OPTION') || fakeColor;
-  // Present user with the corresponding basic card and end the conversation.
-  if (!conv.screen) {
-    conv.ask(colorMap[fakeColor].text);
-  } else {
-    conv.ask(`Here you go.`, new BasicCard(colorMap[fakeColor]));
-  }
-  conv.ask('Do you want to hear about another fake color?');
-  conv.ask(new Suggestions('Yes', 'No'));
-});
-
-// Handle the Dialogflow NO_INPUT intent.
-// Triggered when the user doesn't provide input to the Action
-app.intent('actions_intent_NO_INPUT', (conv) => {
-  // Use the number of reprompts to vary response
-  const repromptCount = parseInt(conv.arguments.get('REPROMPT_COUNT'));
-  if (repromptCount === 0) {
-    conv.ask('Which color would you like to hear about?');
-  } else if (repromptCount === 1) {
-    conv.ask(`Please say the name of a color.`);
-  } else if (conv.arguments.get('IS_FINAL_REPROMPT')) {
-    conv.close(`Sorry we're having trouble. Let's ` +
-      `try this again later. Goodbye.`);
-  }
-});
-
-// Handle the Dialogflow follow-up intents
-app.intent(['favorite color - yes', 'favorite fake color - yes'], (conv) => {
-  conv.ask('Which color, indigo taco, pink unicorn or blue grey coffee?');
-  // If the user is using a screened device, display the carousel
-  if (conv.screen) return conv.ask(fakeColorCarousel());
+  if (conv.screen) return conv.ask(managementCarousel());
 });
 
 // Set the DialogflowApp object to handle the HTTPS POST request.
