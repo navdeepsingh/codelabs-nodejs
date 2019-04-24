@@ -17,12 +17,13 @@
 // from the Actions on Google client library.
 const {
   dialogflow,
-  BrowseCarousel,
+  Carousel,
   Image,
 } = require('actions-on-google');
 
 // Import the firebase-functions package for deployment.
 const functions = require('firebase-functions');
+
 
 // Instantiate the Dialogflow client.
 const app = dialogflow({debug: true});
@@ -30,49 +31,37 @@ const app = dialogflow({debug: true});
 // In the case the user is interacting with the Action on a screened device
 // The Fake Color Carousel will display a carousel of color cards
 const managementCarousel = () => {
-  const carousel = new BrowseCarousel({
-    items: [
-      new BrowseCarouselItem({
-        title: 'DANIEL ENDRES',
-        url: 'http://www.falcon-agency.com/about#management',
-        description: 'Managing Partner',
+  const carousel = new Carousel({
+    items: {
+      'Daniel': {
+        title: 'Daniel Endres',
         image: new Image({
           url: 'http://www.falcon-agency.com/user/themes/taita/img/team/daniel.jpg',
-          alt: 'DANIEL ENDRES',
+          alt: 'Daniel Endres',
         }),
-        footer: 'Daniel is working closely with FALCON\'s clients, strategizing and finding solutions to complex challenges.',
-      }),
-      new BrowseCarouselItem({
-        title: 'MAX-F. SCHEICHENOST',
-        url: 'http://www.falcon-agency.com/about#management',
-        description: 'Managing Partner',
+      },
+      'Max': {
+        title: 'Max-F. Scheichenost',
         image: new Image({
           url: 'http://www.falcon-agency.com/user/themes/taita/img/team/max.jpg',
-          alt: 'MAX-F. SCHEICHENOST',
+          alt: 'Max-F. Scheichenost',
         }),
-        footer: 'Max\'s primary role at the company involves working with FALCON\'s clients to improve their bottom-line results & marketing effectiveness. ​',
-      }),
-      new BrowseCarouselItem({
-        title: 'KELVIN KOO',
-        url: 'http://www.falcon-agency.com/about#management',
-        description: 'Regional CEO (Asia)',
+      },
+      'Kelvin': {
+        title: 'Kelvin Koo',
         image: new Image({
           url: 'http://www.falcon-agency.com/user/themes/taita/img/team/kelvin.jpg',
-          alt: 'KELVIN KOO',
+          alt: 'Kelvin Koo',
         }),
-        footer: 'Kelvin is responsible for the growth and management of the Singapore office, building a centre of excellence to serve FALCON’s clients in the region.',
-      }),
-      new BrowseCarouselItem({
-        title: 'SOO SAN',
-        url: 'http://www.falcon-agency.com/about#management',
-        description: 'Finance Director',
+      },
+      'Soosan': {
+        title: 'Soo San',
         image: new Image({
           url: 'http://www.falcon-agency.com/user/themes/taita/img/team/soo%20san.jpg',
-          alt: 'SOO SAN',
+          alt: 'Soo San',
         }),
-        footer: 'Soo San is responsible for financial decision-making that affects the group’s business and providing strategic financial input to senior management.',
-      }),
-    ],
+      },
+    }
   });
   return carousel;
 };
@@ -80,8 +69,32 @@ const managementCarousel = () => {
 // Handle the Dialogflow intent named 'Default Welcome Intent'.
 app.intent('Default Welcome Intent', (conv) => {
   conv.ask(`FALCON Agency is a full service digital agency serving clients in Southeast Asia. We are proud to work with industry leading brands and grow with them together.`);
+  // conv.ask(new Permission({
+  //   context: 'Hi there, to get to know you better',
+  //   permissions: 'NAME',
+  // }));
   conv.ask(`Want to know about key persons in agency?`);
-  if (conv.screen) return conv.ask(managementCarousel());
+  if (!conv.surface.capabilities.has('actions.capability.SCREEN_OUTPUT')) {
+    conv.ask('Sorry, try this on a screen device or select the ' +
+      'phone surface in the simulator.');
+    return;
+  } else {
+    conv.ask(managementCarousel());
+  }  
+});
+
+const SELECTED_ITEM_RESPONSES = {
+  'Daniel': 'You selected the first item',
+  'Max': 'You selected the Google Home!',
+  'Kelvin': 'You selected the Google Pixel!',
+};
+
+app.intent('actions.intent.OPTION', (conv, params, option) => {
+  let response = 'You did not select any item';
+  if (option && SELECTED_ITEM_RESPONSES.hasOwnProperty(option)) {
+    response = SELECTED_ITEM_RESPONSES[option];
+  }
+  conv.ask(response);
 });
 
 // Set the DialogflowApp object to handle the HTTPS POST request.
