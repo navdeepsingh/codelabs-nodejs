@@ -19,8 +19,6 @@
 const {
   dialogflow,
   Suggestions,
-  Carousel,
-  Image,
 } = require('actions-on-google');
 
 // Import the firebase-functions package for deployment.
@@ -28,45 +26,45 @@ const functions = require('firebase-functions');
 
 
 // Instantiate the Dialogflow client.
-const app = dialogflow({ debug: true });
+const app = dialogflow({debug: true});
 
 // In the case the user is interacting with the Action on a screened device
 // The Fake Color Carousel will display a carousel of color cards
-const managementCarousel = () => {
-  const carousel = new Carousel({
-    items: {
-      'Daniel': {
-        title: 'Daniel Endres',
-        image: new Image({
-          url: 'http://www.falcon-agency.com/user/themes/taita/img/team/daniel.jpg',
-          alt: 'Daniel Endres',
-        }),
-      },
-      'Max': {
-        title: 'Max-F. Scheichenost',
-        image: new Image({
-          url: 'http://www.falcon-agency.com/user/themes/taita/img/team/max.jpg',
-          alt: 'Max-F. Scheichenost',
-        }),
-      },
-      'Kelvin': {
-        title: 'Kelvin Koo',
-        image: new Image({
-          url: 'http://www.falcon-agency.com/user/themes/taita/img/team/kelvin.jpg',
-          alt: 'Kelvin Koo',
-        }),
-      },
-      'Soosan': {
-        title: 'Soo San',
-        image: new Image({
-          url: 'http://www.falcon-agency.com/user/themes/taita/img/team/soo%20san.jpg',
-          alt: 'Soo San',
-        }),
-      },
-    },
-  });
-  return carousel;
-};
+// const managementCarousel = () => {
+//   const carousel = new Carousel({
+//     items: {
+//       'Daniel': {
+//         title: 'Daniel Endres',
+//         image: new Image({
+//           url: 'http://www.falcon-agency.com/user/themes/taita/img/team/daniel.jpg',
+//           alt: 'Daniel Endres',
+//         }),
+//       },
+//       'Max': {
+//         title: 'Max-F. Scheichenost',
+//         image: new Image({
+//           url: 'http://www.falcon-agency.com/user/themes/taita/img/team/max.jpg',
+//           alt: 'Max-F. Scheichenost',
+//         }),
+//       },
+//       'Kelvin': {
+//         title: 'Kelvin Koo',
+//         image: new Image({
+//           url: 'http://www.falcon-agency.com/user/themes/taita/img/team/kelvin.jpg',
+//           alt: 'Kelvin Koo',
+//         }),
+//       },
+//       'Soosan': {
+//         title: 'Soo San',
+//         image: new Image({
+//           url: 'http://www.falcon-agency.com/user/themes/taita/img/team/soo%20san.jpg',
+//           alt: 'Soo San',
+//         }),
+//       },
+//     },
+//   });
+//   return carousel;
+// };
 
 // Handle the Dialogflow intent named 'Default Welcome Intent'.
 app.intent('Default Welcome Intent', (conv) => {
