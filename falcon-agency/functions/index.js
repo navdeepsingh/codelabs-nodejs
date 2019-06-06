@@ -1,3 +1,4 @@
+/* eslint-disable max-len */
 // Copyright 2018, Google, Inc.
 // Licensed under the Apache License, Version 2.0 (the 'License');
 // you may not use this file except in compliance with the License.
@@ -17,6 +18,7 @@
 // from the Actions on Google client library.
 const {
   dialogflow,
+  Suggestions,
   Carousel,
   Image,
 } = require('actions-on-google');
@@ -26,7 +28,7 @@ const functions = require('firebase-functions');
 
 
 // Instantiate the Dialogflow client.
-const app = dialogflow({debug: true});
+const app = dialogflow({ debug: true });
 
 // In the case the user is interacting with the Action on a screened device
 // The Fake Color Carousel will display a carousel of color cards
@@ -61,26 +63,22 @@ const managementCarousel = () => {
           alt: 'Soo San',
         }),
       },
-    }
+    },
   });
   return carousel;
 };
 
 // Handle the Dialogflow intent named 'Default Welcome Intent'.
 app.intent('Default Welcome Intent', (conv) => {
-  conv.ask(`FALCON Agency is a full service digital agency serving clients in Southeast Asia. We are proud to work with industry leading brands and grow with them together.`);
-  // conv.ask(new Permission({
-  //   context: 'Hi there, to get to know you better',
-  //   permissions: 'NAME',
-  // }));
-  conv.ask(`Want to know about key persons in agency?`);
-  if (!conv.surface.capabilities.has('actions.capability.SCREEN_OUTPUT')) {
-    conv.ask('Sorry, try this on a screen device or select the ' +
-      'phone surface in the simulator.');
-    return;
-  } else {
-    conv.ask(managementCarousel());
-  }  
+  conv.ask(`Welcome! I can tell you about the agency, the number of employees or about the top management. Which would you like?`);
+  conv.ask(new Suggestions(['About Agency', 'Top Management']));
+  // if (!conv.surface.capabilities.has('actions.capability.SCREEN_OUTPUT')) {
+  //   conv.ask('Sorry, try this on a screen device or select the ' +
+  //     'phone surface in the simulator.');
+  //   return;
+  // } else {
+  //   conv.ask(managementCarousel());
+  // }
 });
 
 const SELECTED_ITEM_RESPONSES = {
