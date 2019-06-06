@@ -1,4 +1,3 @@
-/* eslint-disable max-len */
 // Copyright 2018, Google, Inc.
 // Licensed under the Apache License, Version 2.0 (the 'License');
 // you may not use this file except in compliance with the License.
@@ -68,6 +67,7 @@ const app = dialogflow({debug: true});
 
 // Handle the Dialogflow intent named 'Default Welcome Intent'.
 app.intent('Default Welcome Intent', (conv) => {
+  // eslint-disable-next-line max-len
   conv.ask(`Welcome! I can tell you about the agency, the number of employees or about the top management. Which would you like?`);
   conv.ask(new Suggestions(['About Agency', 'Top Management']));
   // if (!conv.surface.capabilities.has('actions.capability.SCREEN_OUTPUT')) {
