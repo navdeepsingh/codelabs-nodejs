@@ -76,12 +76,14 @@ app.intent('Default Welcome Intent', (conv) => {
 });
 
 app.intent('About Agency', (conv) => {
-  conv.ask('Falcon Agency is fastest growing digital agency in South-East Asia. What next?');
+  conv.ask('Falcon Agency is fastest growing digital agency in South-East Asia.');
+  conv.ask('What next?');
   conv.ask(new Suggestions(['Top Management', 'Number of employees']));
 });
 
 app.intent('Number of employees', (conv) => {
-  conv.ask('We are team of 50. Anything else?');
+  conv.ask('We are team of 50.');
+  conv.ask('Anything else?');
   conv.ask(new Suggestions(['Top Management', 'About Agency']));
 });
 
@@ -97,9 +99,10 @@ app.intent('Top Management', (conv) => {
 });
 
 const SELECTED_ITEM_RESPONSES = {
-  'Daniel': 'You selected the first item',
-  'Max': 'You selected the Google Home!',
-  'Kelvin': 'You selected the Google Pixel!',
+  'Daniel Endres': 'You selected the Daniel Endres',
+  'Max-F. Scheichenost': 'You selected the Max-F. Scheichenost',
+  'Kelvin Koo': 'Kelvin Koo',
+  'Soo San': 'Soo San',
 };
 
 app.intent('actions.intent.OPTION', (conv, params, option) => {
