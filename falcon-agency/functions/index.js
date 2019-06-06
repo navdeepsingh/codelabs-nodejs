@@ -28,7 +28,7 @@ const functions = require('firebase-functions');
 
 
 // Instantiate the Dialogflow client.
-const app = dialogflow({ debug: true });
+const app = dialogflow({debug: true});
 
 // In the case the user is interacting with the Action on a screened device
 // The Fake Color Carousel will display a carousel of color cards
