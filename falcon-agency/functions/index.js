@@ -21,6 +21,7 @@ const {
   Suggestions,
   Carousel,
   Image,
+  BasicCard,
 } = require('actions-on-google');
 
 // Import the firebase-functions package for deployment.
