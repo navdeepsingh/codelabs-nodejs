@@ -29,7 +29,7 @@ const functions = require('firebase-functions');
 
 
 // Instantiate the Dialogflow client.
-const app = dialogflow({debug: true});
+const app = dialogflow({ debug: true });
 
 // In the case the user is interacting with the Action on a screened device
 // The Fake Color Carousel will display a carousel of color cards
@@ -100,7 +100,7 @@ app.intent('Top Management', (conv) => {
 });
 
 const SELECTED_ITEM_RESPONSES = {
-  'Daniel': new BasicCard({
+  'Daniel': {
     text: `**Daniel** is working closely with FALCON's clients, strategizing and finding solutions to complex challenges. `,
     subtitle: 'DANIEL ENDRES',
     title: 'Managing Partner',
@@ -109,8 +109,8 @@ const SELECTED_ITEM_RESPONSES = {
       alt: 'DANIEL ENDRES',
     }),
     display: 'CROPPED',
-  }),
-  'Max': new BasicCard({
+  },
+  'Max': {
     text: `**Max's** primary role at the company involves working with FALCON's clients to improve their bottom-line results & marketing effectiveness.`,
     subtitle: 'MAX-F. SCHEICHENOST',
     title: 'Managing Partner',
@@ -119,8 +119,8 @@ const SELECTED_ITEM_RESPONSES = {
       alt: 'MAX-F. SCHEICHENOST',
     }),
     display: 'CROPPED',
-  }),
-  'Kelvin': new BasicCard({
+  },
+  'Kelvin': {
     text: `**Kelvin** is responsible for the growth and management of the Singapore office, building a centre of excellence to serve FALCON’s clients in the region.`,
     subtitle: 'KELVIN KOO',
     title: 'Regional CEO (Asia)',
@@ -129,8 +129,8 @@ const SELECTED_ITEM_RESPONSES = {
       alt: 'KELVIN KOO',
     }),
     display: 'CROPPED',
-  }),
-  'Soosan': new BasicCard({
+  },
+  'Soosan': {
     text: `**Soo San** is responsible for financial decision-making that affects the group’s business and providing strategic financial input to senior management. `,
     subtitle: 'SOO SAN',
     title: 'Finance Director',
@@ -139,13 +139,13 @@ const SELECTED_ITEM_RESPONSES = {
       alt: 'SOO SAN',
     }),
     display: 'CROPPED',
-  }),
+  },
 };
 
 app.intent('actions.intent.OPTION', (conv, params, option) => {
   let response = 'You did not select any item';
   if (option && SELECTED_ITEM_RESPONSES.hasOwnProperty(option)) {
-    response = SELECTED_ITEM_RESPONSES[option];
+    response = new BasicCard(SELECTED_ITEM_RESPONSES[option]);
   }
   conv.ask(response);
 });
