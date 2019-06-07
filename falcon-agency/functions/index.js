@@ -29,7 +29,7 @@ const functions = require('firebase-functions');
 
 
 // Instantiate the Dialogflow client.
-const app = dialogflow({ debug: true });
+const app = dialogflow({debug: true});
 
 // In the case the user is interacting with the Action on a screened device
 // The Fake Color Carousel will display a carousel of color cards
@@ -143,11 +143,20 @@ const SELECTED_ITEM_RESPONSES = {
 };
 
 app.intent('actions.intent.OPTION', (conv, params, option) => {
-  let response = 'You did not select any item';
-  if (option && SELECTED_ITEM_RESPONSES.hasOwnProperty(option)) {
-    response = new BasicCard(SELECTED_ITEM_RESPONSES[option]);
-  }
-  conv.ask(response);
+  // let response = 'You did not select any item';
+  // if (option && SELECTED_ITEM_RESPONSES.hasOwnProperty(option)) {
+  //   response = new BasicCard(SELECTED_ITEM_RESPONSES[option]);
+  // }
+  conv.ask(new BasicCard({
+    text: `**Soo San** is responsible for financial decision-making that affects the group’s business and providing strategic financial input to senior management. `,
+    subtitle: 'SOO SAN',
+    title: 'Finance Director',
+    image: new Image({
+      url: 'http://www.falcon-agency.com/user/themes/taita/img/team/soo%20san.jpg',
+      alt: 'SOO SAN',
+    }),
+    display: 'CROPPED',
+  }));
 });
 
 // Set the DialogflowApp object to handle the HTTPS POST request.
