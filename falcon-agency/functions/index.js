@@ -100,63 +100,20 @@ app.intent('Top Management', (conv) => {
 });
 
 const SELECTED_ITEM_RESPONSES = {
-  'Daniel': {
-    text: `**Daniel** is working closely with FALCON's clients, strategizing and finding solutions to complex challenges. `,
-    subtitle: 'DANIEL ENDRES',
-    title: 'Managing Partner',
-    image: new Image({
-      url: 'http://www.falcon-agency.com/user/themes/taita/img/team/daniel.jpg',
-      alt: 'DANIEL ENDRES',
-    }),
-    display: 'CROPPED',
-  },
-  'Max': {
-    text: `**Max's** primary role at the company involves working with FALCON's clients to improve their bottom-line results & marketing effectiveness.`,
-    subtitle: 'MAX-F. SCHEICHENOST',
-    title: 'Managing Partner',
-    image: new Image({
-      url: 'http://www.falcon-agency.com/user/themes/taita/img/team/max.jpg',
-      alt: 'MAX-F. SCHEICHENOST',
-    }),
-    display: 'CROPPED',
-  },
-  'Kelvin': {
-    text: `**Kelvin** is responsible for the growth and management of the Singapore office, building a centre of excellence to serve FALCON’s clients in the region.`,
-    subtitle: 'KELVIN KOO',
-    title: 'Regional CEO (Asia)',
-    image: new Image({
-      url: 'http://www.falcon-agency.com/user/themes/taita/img/team/kelvin.jpg',
-      alt: 'KELVIN KOO',
-    }),
-    display: 'CROPPED',
-  },
-  'Soosan': {
-    text: `**Soo San** is responsible for financial decision-making that affects the group’s business and providing strategic financial input to senior management. `,
-    subtitle: 'SOO SAN',
-    title: 'Finance Director',
-    image: new Image({
-      url: 'http://www.falcon-agency.com/user/themes/taita/img/team/soo%20san.jpg',
-      alt: 'SOO SAN',
-    }),
-    display: 'CROPPED',
-  },
+  'Daniel': `Daniel is working closely with FALCON's clients, strategizing and finding solutions to complex challenges.`,
+  'Max': `Max's primary role at the company involves working with FALCON's clients to improve their bottom-line results & marketing effectiveness.`,
+  'Kelvin': `Kelvin is responsible for the growth and management of the Singapore office, building a centre of excellence to serve FALCON’s clients in the region.`,
+  'Soosan': `Soo San is responsible for financial decision-making that affects the group’s business and providing strategic financial input to senior management. `,
 };
 
 app.intent('actions.intent.OPTION', (conv, params, option) => {
-  // let response = 'You did not select any item';
-  // if (option && SELECTED_ITEM_RESPONSES.hasOwnProperty(option)) {
-  //   response = new BasicCard(SELECTED_ITEM_RESPONSES[option]);
-  // }
-  conv.ask(new BasicCard({
-    text: `**Soo San** is responsible for financial decision-making that affects the group’s business and providing strategic financial input to senior management. `,
-    subtitle: 'SOO SAN',
-    title: 'Finance Director',
-    image: new Image({
-      url: 'http://www.falcon-agency.com/user/themes/taita/img/team/soo%20san.jpg',
-      alt: 'SOO SAN',
-    }),
-    display: 'CROPPED',
-  }));
+  let response = 'You did not select any item';
+  if (option && SELECTED_ITEM_RESPONSES.hasOwnProperty(option)) {
+    response = SELECTED_ITEM_RESPONSES[option];
+  }
+  conv.ask(response);
+  conv.ask('Want to send email to Agency?');
+  conv.ask(new Suggestions(['Yes', 'No', 'May be later']));
 });
 
 // Set the DialogflowApp object to handle the HTTPS POST request.
