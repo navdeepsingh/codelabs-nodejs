@@ -99,10 +99,10 @@ app.intent('Top Management', (conv) => {
 });
 
 const SELECTED_ITEM_RESPONSES = {
-  'Daniel Endres': 'You selected the Daniel Endres',
-  'Max-F. Scheichenost': 'You selected the Max-F. Scheichenost',
-  'Kelvin Koo': 'Kelvin Koo',
-  'Soo San': 'Soo San',
+  'Daniel': 'You selected the Daniel Endres',
+  'Max': 'You selected the Max-F. Scheichenost',
+  'Kelvin': 'Kelvin Koo',
+  'Soosan': 'Soo San',
 };
 
 app.intent('actions.intent.OPTION', (conv, params, option) => {
