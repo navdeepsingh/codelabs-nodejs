@@ -21,7 +21,6 @@ const {
   Suggestions,
   Carousel,
   Image,
-  BasicCard,
 } = require('actions-on-google');
 
 // Import the firebase-functions package for deployment.
@@ -71,6 +70,15 @@ const managementCarousel = () => {
 
 // Handle the Dialogflow intent named 'Default Welcome Intent'.
 app.intent('Default Welcome Intent', (conv) => {
+  if (!name) {
+    // Asks the user's permission to know their name, for personalization.
+    conv.ask(new Permission({
+      context: 'This quiz will contain 5 questions. To get to know you better',
+      permissions: 'NAME',
+    }));
+  } else {
+    conv.ask(`Hi again, ${name}. This quiz will contain 5 questions. Best of Luck.`);
+  }
   // eslint-disable-next-line max-len
   conv.ask(`Welcome! I can tell you about the agency, the number of employees or about the top management. Which would you like?`);
   conv.ask(new Suggestions(['About Agency', 'Top Management']));
@@ -96,6 +104,22 @@ app.intent('Top Management', (conv) => {
   } else {
     conv.ask('These are our top management as follows:');
     conv.ask(managementCarousel());
+  }
+});
+
+
+app.intent('Email Response Yes', (conv) => {
+  conv.ask(new SignIn('To get your account details'));
+});
+
+
+// Create a Dialogflow intent with the `actions_intent_SIGN_IN` event
+app.intent('Get Signin', (conv, params, signin) => {
+  if (signin.status === 'OK') {
+    const email = conv.user.email;
+    conv.ask(`I got your email as ${email}. I am in process to send email to falcon agency?`);
+  } else {
+    conv.ask(`I won't be able to save your data, but what do you want to next?`);
   }
 });
 
