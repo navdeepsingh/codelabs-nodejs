@@ -70,15 +70,6 @@ const managementCarousel = () => {
 
 // Handle the Dialogflow intent named 'Default Welcome Intent'.
 app.intent('Default Welcome Intent', (conv) => {
-  if (!name) {
-    // Asks the user's permission to know their name, for personalization.
-    conv.ask(new Permission({
-      context: 'This quiz will contain 5 questions. To get to know you better',
-      permissions: 'NAME',
-    }));
-  } else {
-    conv.ask(`Hi again, ${name}. This quiz will contain 5 questions. Best of Luck.`);
-  }
   // eslint-disable-next-line max-len
   conv.ask(`Welcome! I can tell you about the agency, the number of employees or about the top management. Which would you like?`);
   conv.ask(new Suggestions(['About Agency', 'Top Management']));
